@@ -4,7 +4,7 @@ from sleeper_wrapper import User
 from sleeper_wrapper import League
 import json
 
-USER_NAME = "UNKNOWN"
+USER_NAME = "UNKOWN"
 YEAR = 2020
 
 def player_data(player_id):
@@ -18,6 +18,7 @@ class Player:
         self.pos = 'none'
         self.name = 'none'
         self.proj_points = 0.0
+        self.lookup()
 
     def __str__(self):
         return self.name + "\t" + self.pos
@@ -52,5 +53,4 @@ if __name__ == "__main__":
     my_rosters = []
     [[my_rosters.append(Roster(obj.get_league()["name"], roster["players"])) for roster in obj.get_rosters() if roster["owner_id"] == user_id] for obj in league_objs]
 
-    [[player.lookup() for player in roster.players] for roster in my_rosters]
     [print(roster) for roster in my_rosters]
