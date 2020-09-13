@@ -2,23 +2,55 @@
 
 from sleeper_wrapper import User
 from sleeper_wrapper import League
+import json
 
-USER_NAME = "USERNAME_HERE"
+USER_NAME = "UNKNOWN"
 YEAR = 2020
+
+def player_data(player_id):
+    with open('playa_list', 'r') as playa_file:
+        data = json.load(playa_file)
+        return data[player_id]
+
+class Player:
+    def __init__(self, id):
+        self.id = id
+        self.pos = 'none'
+        self.name = 'none'
+        self.proj_points = 0.0
+
+    def __str__(self):
+        return self.name + "\t" + self.pos
+
+    def lookup(self):
+        res = player_data(self.id)
+        self.name = res["first_name"] + " " + res["last_name"]
+        self.pos = res["position"]
+
+class Roster:
+    def __init__(self, name, list_of_ids):
+        self.players = []
+        self.league_name = name
+        [self.players.append(Player(id)) for id in list_of_ids]
+
+    def __str__(self):
+        string = self.league_name + ":\n"
+        for p in self.players:
+            string += "\t" + str(p) + "\n"
+        return string
 
 if __name__ == "__main__":
     user = User(USER_NAME)
     user_id = user.get_user_id()
+
     leagues = [league for league in user.get_all_leagues("nfl", YEAR)]
     league_ids = [league['league_id'] for league in leagues]
+
     league_objs = []
     [league_objs.append(League(id)) for id in league_ids]
 
     my_rosters = []
-    for obj in league_objs:
-        [my_rosters.append({"league" : obj.get_league()["name"], "players" : roster["players"]}) for roster in obj.get_roster() if roster["owner_id"] == user_id]
+    [[my_rosters.append(Roster(obj.get_league()["name"], roster["players"])) for roster in obj.get_rosters() if roster["owner_id"] == user_id] for obj in league_objs]
 
-    my_playas = []
-
-    #for roster in my_rosters:
-        #playa for playa in roster["players"] if playa[
+    [[player.lookup() for player in roster.players] for roster in my_rosters]
+    [print(roster) for roster in my_rosters]
