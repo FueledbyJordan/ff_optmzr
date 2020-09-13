@@ -4,7 +4,7 @@ from sleeper_wrapper import User
 from sleeper_wrapper import League
 import json
 
-USER_NAME = "UNKNOWN"
+USER_NAME = "USERNAME"
 YEAR = 2020
 PLAYER_DATABASE = {}
 
@@ -21,11 +21,29 @@ class Player:
         self.id = id
         self.pos = 'none'
         self.name = 'none'
-        self.proj_points = 0.0
+        self.tier = 0
         self.lookup()
 
     def __str__(self):
         return self.name + "\t" + self.pos
+
+    def __eq__(self, other):
+        return (self.tier == other.tier)
+
+    def __ne__(self, other):
+        return (self.tier != other.tier)
+
+    def __lt__(self, other):
+        return (self.tier < other.tier)
+
+    def __le__(self, other):
+        return (self.tier <= other.tier)
+
+    def __gt__(self, other):
+        return (self.tier > other.tier)
+
+    def __ge__(self, other):
+        return (self.tier >= other.tier)
 
     def lookup(self):
         res = player_db_lookup(self.id)
@@ -37,6 +55,32 @@ class Roster:
         self.players = []
         self.league_name = name
         [self.players.append(Player(id)) for id in list_of_ids]
+
+    def __num_of_players_in_pos__(self, number, pos):
+        res = []
+        if (number != 0):
+            res = list([p for p in self.players if p.pos == pos])
+            res.sort()
+
+        return res[0:number]
+
+    def quarterbacks(self, number):
+        return self.__num_of_players_in_pos__(number, 'QB')
+
+    def running_backs(self, number):
+        return self.__num_of_players_in_pos__(number, 'RB')
+
+    def wide_receivers(self, number):
+        return self.__num_of_players_in_pos__(number, 'WR')
+
+    def tight_ends(self, number):
+        return self.__num_of_players_in_pos__(number, 'TE')
+
+    def defenses(self, number):
+        return self.__num_of_players_in_pos__(number, 'DEF')
+
+    def kickers(self, number):
+        return self.__num_of_players_in_pos__(number, 'K')
 
     def __str__(self):
         string = self.league_name + ":\n"
@@ -59,4 +103,4 @@ if __name__ == "__main__":
     my_rosters = []
     [[my_rosters.append(Roster(obj.get_league()["name"], roster["players"])) for roster in obj.get_rosters() if roster["owner_id"] == user_id] for obj in league_objs]
 
-    [print(roster) for roster in my_rosters]
+    [[print(backs) for backs in roster.defenses(5)] for roster in my_rosters]
