@@ -4,13 +4,17 @@ from sleeper_wrapper import User
 from sleeper_wrapper import League
 import json
 
-USER_NAME = "UNKOWN"
+USER_NAME = "UNKNOWN"
 YEAR = 2020
+PLAYER_DATABASE = {}
 
-def player_data(player_id):
+def player_data_base_load():
     with open('playa_list', 'r') as playa_file:
         data = json.load(playa_file)
-        return data[player_id]
+        return data
+
+def player_db_lookup(id):
+    return PLAYER_DATABASE[id]
 
 class Player:
     def __init__(self, id):
@@ -24,7 +28,7 @@ class Player:
         return self.name + "\t" + self.pos
 
     def lookup(self):
-        res = player_data(self.id)
+        res = player_db_lookup(self.id)
         self.name = res["first_name"] + " " + res["last_name"]
         self.pos = res["position"]
 
@@ -41,6 +45,8 @@ class Roster:
         return string
 
 if __name__ == "__main__":
+    PLAYER_DATABASE = player_data_base_load()
+
     user = User(USER_NAME)
     user_id = user.get_user_id()
 
